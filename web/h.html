@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>留言板</title>
+    <script>
+        // 这个函数用于发送 AJAX 请求以刷新留言记录
+        function refreshMessages() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // 将获取到的留言记录设置到留言记录表中
+                        document.getElementById("messagesTable").innerHTML = xhr.responseText;
+                    } else {
+                        alert("无法获取留言记录");
+                    }
+                }
+            };
+            xhr.open("GET", "guestbook.txt", true);
+            xhr.send();
+        }
+
+        // 这个函数用于发送留言到服务器
+        function sendMessage() {
+            var message = document.getElementById("messageInput").value;
+            if (message.trim() === "") {
+                alert("留言不能为空！");
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        alert("留言成功！");
+                        // 清空留言框并刷新留言记录
+                        document.getElementById("messageInput").value = "";
+                        refreshMessages();
+                    } else {
+                        alert("留言失败！");
+                    }
+                }
+            };
+            xhr.open("POST", "", true);
+            // 注意：实际开发中应使用 encodeURIComponent 来确保留言内容被正确编码
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send("message=" + message);
+        }
+    </script>
+</head>
+<body>
+    <h1>留言板</h1>
+    <!-- 留言记录表 -->
+    <table id="messagesTable" border="1">
+        <!-- 留言记录将通过 AJAX 请求动态加载 -->
+    </table>
+    <!-- 留言输入框和发送按钮 -->
+    <form id="messageForm" onsubmit="event.preventDefault(); sendMessage();">
+        <input type="text" id="messageInput" placeholder="输入您的留言">
+        <input type="submit" value="发送留言">
+    </form>
+    <!-- 刷新留言记录按钮 -->
+    <button onclick="refreshMessages()">刷新留言记录</button>
+</body>
+</html>
